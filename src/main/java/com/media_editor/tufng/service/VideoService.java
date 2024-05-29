@@ -15,24 +15,18 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class VideoService {
 
+    private static final String UPLOADED_FOLDER = "src/main/resources/uploaded_videos";
     private static final Logger logger = LoggerFactory.getLogger(VideoService.class);
 
     private final DBService dbService;
@@ -82,22 +76,22 @@ public class VideoService {
 
         switch (type) {
             case "thumbnail":
-                filePath = "../resources/storage/" + videoId + "/thumbnail.jpg";
+                filePath = UPLOADED_FOLDER + "/" + videoId + "/thumbnail.jpg";
                 mimeType = "image/jpeg";
                 break;
             case "audio":
-                filePath = "../resources/storage/" + videoId + "/audio.aac";
+                filePath = UPLOADED_FOLDER + "/" + videoId + "/audio.aac";
                 mimeType = "audio/aac";
                 filename = video.getName() + "-audio.aac";
                 break;
             case "resize":
                 String dimensions = ""; // You need to get the dimensions somehow
-                filePath = "../resources/storage/" + videoId + "/" + dimensions + "." + video.getExtension();
+                filePath = UPLOADED_FOLDER +  "/"  + videoId + "/" + dimensions + "." + video.getExtension();
                 mimeType = "video/mp4"; // Not a good practice, as videos are not always MP4
                 filename = video.getName() + "-" + dimensions + "." + video.getExtension();
                 break;
             case "original":
-                filePath = "../resources/storage/" + videoId + "/original." + video.getExtension();
+                filePath = UPLOADED_FOLDER + "/" + videoId + "/original." + video.getExtension();
                 mimeType = "video/mp4"; // Not a good practice, as videos are not always MP4
                 filename = video.getName() + "." + video.getExtension();
                 break;
@@ -135,7 +129,7 @@ public class VideoService {
 
         String extension = FilenameUtils.getExtension(filename).toLowerCase();
         String name = FilenameUtils.getBaseName(filename);
-        String videoId = new BigInteger(130, random).toString(32);
+        String videoId = new BigInteger(32, random).toString(32);
 
         List<String> formatsSupported = Arrays.asList("mov", "mp4");
 
@@ -144,9 +138,11 @@ public class VideoService {
                     .body("{\"message\": \"Only these formats are allowed: mov, mp4\"}");
         }
 
+        String storagePath = UPLOADED_FOLDER + "/" + videoId;
         try {
-            Files.createDirectories(Paths.get("../resources/storage/" + videoId));
-            String fullPath = "../resources/storage/" + videoId + "/original." + extension;
+
+            Files.createDirectories(Paths.get(storagePath));
+            String fullPath = storagePath + "/original." + extension;
             try {
                 file.transferTo(Paths.get(fullPath));
             } catch (IOException e) {
@@ -155,7 +151,7 @@ public class VideoService {
             }
 
             // Make a thumbnail for the video file
-            ffService.makeThumbnail(fullPath, "../resources/storage/" + videoId + "/thumbnail.jpg");
+            ffService.makeThumbnail(fullPath, storagePath + "/thumbnail.jpg");
 
             // Get the dimensions
             Video.Dimensions dimensions = ffService.getDimensions(fullPath);
@@ -181,7 +177,7 @@ public class VideoService {
                     .body("{\"status\": \"success\", \"message\": \"The file was uploaded successfully!\"}");
         } catch (IOException e) {
             // Delete the folder
-//            deleteFolder("../resources/storage/" + videoId);
+           deleteFolder(storagePath);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"message\": \"Internal server error!\"}");
         } catch (InterruptedException e) {
