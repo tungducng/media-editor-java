@@ -9,6 +9,19 @@ public class Video {
     private String extension;
     private Dimensions dimensions;
     private int userId;
+
+
+    public Video(int id, String videoId, String name, String extension, Dimensions dimensions, int userId, boolean extractedAudio, Map<String, Resize> resizes) {
+        this.id = id;
+        this.videoId = videoId;
+        this.name = name;
+        this.extension = extension;
+        this.dimensions = dimensions;
+        this.userId = userId;
+        this.extractedAudio = extractedAudio;
+        this.resizes = resizes;
+    }
+
     private boolean extractedAudio;
     private Map<String, Resize> resizes;
 
@@ -75,37 +88,52 @@ public class Video {
     public void setResizes(Map<String, Resize> resizes) {
         this.resizes = resizes;
     }
+
+
+    public static class Resize {
+        private boolean processing;
+
+        public boolean isProcessing() {
+            return processing;
+        }
+
+        public void setProcessing(boolean processing) {
+            this.processing = processing;
+        }
+    }
+
+    public static class Dimensions {
+        private int width;
+        private int height;
+
+        public Dimensions() {}
+
+        public Dimensions(int width, int height) {
+            this.width = width;
+            this.height = height;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+    }
+
+
 }
 
-class Dimensions {
-    private int width;
-    private int height;
 
-    public int getWidth() {
-        return width;
-    }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
 
-    public int getHeight() {
-        return height;
-    }
 
-    public void setHeight(int height) {
-        this.height = height;
-    }
-}
-
-class Resize {
-    private boolean processing;
-
-    public boolean isProcessing() {
-        return processing;
-    }
-
-    public void setProcessing(boolean processing) {
-        this.processing = processing;
-    }
-}
