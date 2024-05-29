@@ -3,6 +3,7 @@ package com.media_editor.tufng.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media_editor.tufng.model.Session;
 import com.media_editor.tufng.model.User;
+import com.media_editor.tufng.model.Video;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,11 @@ public class DBService {
     private static final Logger logger = LoggerFactory.getLogger(DBService.class);
     private static final String USERS_PATH = "src/main/resources/data/users.json";
     private static final String SESSIONS_PATH = "src/main/resources/data/sessions.json";
+    private static final String VIDEOS_PATH = "src/main/resources/data/videos.json";
 
     private List<User> users;
     private List<Session> sessions;
+    private List<Video> videos;
 
     private final ObjectMapper objectMapper;
 
@@ -30,11 +33,13 @@ public class DBService {
     public void update() {
         this.users = readFromFile(USERS_PATH, User.class);
         this.sessions = readFromFile(SESSIONS_PATH, Session.class);
+        this.videos = readFromFile(VIDEOS_PATH, Video.class);
     }
 
     public void save() {
         writeToFile(USERS_PATH, users);
         writeToFile(SESSIONS_PATH, sessions);
+        writeToFile(VIDEOS_PATH, videos);
     }
 
     public List<User> getUsers() {
@@ -43,6 +48,10 @@ public class DBService {
 
     public List<Session> getSessions() {
         return sessions;
+    }
+
+    public List<Video> getVideos() {
+        return videos;
     }
 
     private <T> List<T> readFromFile(String path, Class<T> clazz) {

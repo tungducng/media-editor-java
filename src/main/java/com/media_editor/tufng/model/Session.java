@@ -2,9 +2,16 @@ package com.media_editor.tufng.model;
 
 public class Session {
     private int userId;
+    private String token;
+
 
     public int getUserId() {
         return userId;
+    }
+
+    public Session(int userId, String token) {
+        this.userId = userId;
+        this.token = token;
     }
 
     public void setUserId(int userId) {
@@ -19,5 +26,4 @@ public class Session {
         this.token = token;
     }
 
-    private String token;
 }
