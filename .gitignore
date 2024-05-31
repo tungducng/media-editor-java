@@ -38,4 +38,5 @@ out/
 
 #####################resources
 /src/main/resources/uploaded_videos/*
+!14avs52
 
