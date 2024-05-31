@@ -1,5 +1,6 @@
 package com.media_editor.tufng.service;
 
+import com.media_editor.tufng.model.Job;
 import com.media_editor.tufng.model.Session;
 import com.media_editor.tufng.model.Video;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 import org.slf4j.Logger;
@@ -31,12 +34,18 @@ public class VideoService {
 
     private final DBService dbService;
     private final FFService ffService;
+    private final JobQueueService jobQueueService;
+    private final UtilService utilService;
 
     private final Random random = new Random();
+    private ThreadPoolExecutor executor;
 
-    public VideoService(DBService dbService, FFService ffService) {
+    public VideoService(DBService dbService, FFService ffService, JobQueueService jobQueueService, UtilService utilService) {
         this.dbService = dbService;
         this.ffService = ffService;
+        this.jobQueueService = jobQueueService;
+        this.utilService = utilService;
+        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
     }
 
 
@@ -58,7 +67,7 @@ public class VideoService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    public ResponseEntity<?> getVideoAsset(String videoId, String type) {
+    public ResponseEntity<?> getVideoAsset(String videoId, String type, String dimensions) {
         dbService.update();
         Video video = dbService.getVideos().stream()
                 .filter(v -> v.getVideoId().equals(videoId))
@@ -85,7 +94,6 @@ public class VideoService {
                 filename = video.getName() + "-audio.aac";
                 break;
             case "resize":
-                String dimensions = ""; // You need to get the dimensions somehow
                 filePath = UPLOADED_FOLDER +  "/"  + videoId + "/" + dimensions + "." + video.getExtension();
                 mimeType = "video/mp4"; // Not a good practice, as videos are not always MP4
                 filename = video.getName() + "-" + dimensions + "." + video.getExtension();
@@ -119,7 +127,6 @@ public class VideoService {
                     .body("{\"message\": \"Internal server error!\"}");
         }
     }
-
 
     public ResponseEntity<?> uploadVideo(String filename, String token, MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -177,21 +184,78 @@ public class VideoService {
                     .body("{\"status\": \"success\", \"message\": \"The file was uploaded successfully!\"}");
         } catch (IOException e) {
             // Delete the folder
-           deleteFolder(storagePath);
+           utilService.deleteFolder(storagePath);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"message\": \"Internal server error!\"}");
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
-    private void deleteFolder(String path) {
+
+    public ResponseEntity<?> extractAudio(String videoId) {
+        dbService.update();
+        Video video = dbService.getVideos().stream()
+                .filter(v -> v.getVideoId().equals(videoId))
+                .findFirst()
+                .orElse(null);
+
+        if (video == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"Video not found!\"}");
+        }
+
+        if (video.isExtractedAudio()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"The audio has already been extracted for this video.\"}");
+        }
+
+        String originalVideoPath = UPLOADED_FOLDER + "/" + videoId + "/original." + video.getExtension();
+        String targetAudioPath = UPLOADED_FOLDER + "/" + videoId + "/audio.aac";
+
         try {
-            Files.walk(Paths.get(path))
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException e) {
-            logger.error("Failed to delete folder", e);
+            ffService.extractAudio(originalVideoPath, targetAudioPath);
+
+            video.setExtractedAudio(true);
+            dbService.save();
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("{\"status\": \"success\", \"message\": \"The audio was extracted successfully!\"}");
+        } catch (Exception e) {
+            utilService.deleteFile(targetAudioPath);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Internal server error!\"}");
         }
     }
+
+    public ResponseEntity<?> resizeVideo(String videoId, int width, int height) {
+        dbService.update();
+        Video video = dbService.getVideos().stream()
+                .filter(v -> v.getVideoId().equals(videoId))
+                .findFirst()
+                .orElse(null);
+
+        if (video == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"Video not found!\"}");
+        }
+
+        video.getResizes().put(width + "x" + height, new Video.Resize(true));
+        dbService.save();
+
+
+        // Create a new job and submit it to the executor
+        Job job = new Job("resize", videoId, width, height);
+        executor.submit(() -> {
+            try {
+                // Replace this with the actual code to resize the video
+               jobQueueService.enqueue(job);
+            } catch (Exception e) {
+                logger.error("Failed to enqueue job", e);
+            }
+        });
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("{\"status\": \"success\", \"message\": \"The video is now being processed!\"}");
+    }
+
+
 }

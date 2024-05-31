@@ -1,5 +1,8 @@
 package com.media_editor.tufng.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Map;
 
 public class Video {
@@ -9,7 +12,8 @@ public class Video {
     private String extension;
     private Dimensions dimensions;
     private int userId;
-
+    private Map<String, Resize> resizes;
+    private boolean extractedAudio;
 
     public Video(int id, String videoId, String name, String extension, Dimensions dimensions, int userId, boolean extractedAudio, Map<String, Resize> resizes) {
         this.id = id;
@@ -22,8 +26,6 @@ public class Video {
         this.resizes = resizes;
     }
 
-    private boolean extractedAudio;
-    private Map<String, Resize> resizes;
 
     public int getId() {
         return id;
@@ -92,6 +94,11 @@ public class Video {
 
     public static class Resize {
         private boolean processing;
+
+        @JsonCreator
+        public Resize(@JsonProperty("processing") boolean processing) {
+            this.processing = processing;
+        }
 
         public boolean isProcessing() {
             return processing;

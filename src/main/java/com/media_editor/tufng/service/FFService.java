@@ -39,4 +39,39 @@ public class FFService {
 
         return new Dimensions(Integer.parseInt(dimensionsArray[0].trim()), Integer.parseInt(dimensionsArray[1].trim()));
     }
+
+    public void extractAudio (String fullPath, String audioPath) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder("ffmpeg", "-i", fullPath, "-vn", "-c:a", "copy", audioPath);
+        Process process = processBuilder.start();
+        int exitCode = process.waitFor();
+
+        if (exitCode != 0) {
+            throw new RuntimeException("FFmpeg exited with non-zero exit code: " + exitCode);
+        }
+    }
+
+    public void resize(String originalVideoPath, String targetVideoPath, int width, int height) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "ffmpeg",
+                "-i",
+                originalVideoPath,
+                "-vf",
+                "scale=" + width + ":" + height,
+                "-c:a",
+                "copy",
+                "-threads",
+                "2",
+                "-loglevel",
+                "error",
+                "-y",
+                targetVideoPath
+        );
+
+        Process process = processBuilder.start();
+        int exitCode = process.waitFor();
+
+        if (exitCode != 0) {
+            throw new RuntimeException("FFmpeg existed with this code: " + exitCode);
+        }
+    }
 }
