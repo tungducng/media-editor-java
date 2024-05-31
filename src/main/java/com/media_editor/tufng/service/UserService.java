@@ -2,6 +2,7 @@ package com.media_editor.tufng.service;
 
 import com.media_editor.tufng.model.Session;
 import com.media_editor.tufng.model.User;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Random;
-import org.slf4j.Logger;
 
 @Service
 public class UserService {
@@ -38,8 +38,8 @@ public class UserService {
             String token = String.format("%010d", random.nextInt(1000000000));
 
 //             Save the generated token
-             dbService.getSessions().add(new Session(user.get().getId(), token));
-             dbService.save();
+            dbService.getSessions().add(new Session(user.get().getId(), token));
+            dbService.save();
 
             // Set the token in the response header
             HttpHeaders headers = new HttpHeaders();
@@ -136,6 +136,4 @@ public class UserService {
                 .findFirst()
                 .orElse(null);
     }
-
-    // Implement other user-related operations...
 }

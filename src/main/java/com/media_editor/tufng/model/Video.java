@@ -113,7 +113,8 @@ public class Video {
         private int width;
         private int height;
 
-        public Dimensions() {}
+        public Dimensions() {
+        }
 
         public Dimensions(int width, int height) {
             this.width = width;
@@ -136,8 +137,6 @@ public class Video {
             this.height = height;
         }
     }
-
-
 }
 
 

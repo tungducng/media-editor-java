@@ -28,6 +28,4 @@ public class ResizeRequest {
     public void setHeight(int height) {
         this.height = height;
     }
-
-    // getters and setters
 }

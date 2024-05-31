@@ -6,6 +6,13 @@ public class Job {
     private int width;
     private int height;
 
+    public Job(String type, String videoId, int width, int height) {
+        this.type = type;
+        this.videoId = videoId;
+        this.width = width;
+        this.height = height;
+    }
+
     public String getType() {
         return type;
     }
@@ -35,13 +42,6 @@ public class Job {
     }
 
     public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public Job(String type, String videoId, int width, int height) {
-        this.type = type;
-        this.videoId = videoId;
-        this.width = width;
         this.height = height;
     }
 }

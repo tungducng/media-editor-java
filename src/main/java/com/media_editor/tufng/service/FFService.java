@@ -1,7 +1,7 @@
 package com.media_editor.tufng.service;
 
-import org.springframework.stereotype.Service;
 import com.media_editor.tufng.model.Video.Dimensions;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class FFService {
         return new Dimensions(Integer.parseInt(dimensionsArray[0].trim()), Integer.parseInt(dimensionsArray[1].trim()));
     }
 
-    public void extractAudio (String fullPath, String audioPath) throws IOException, InterruptedException {
+    public void extractAudio(String fullPath, String audioPath) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder("ffmpeg", "-i", fullPath, "-vn", "-c:a", "copy", audioPath);
         Process process = processBuilder.start();
         int exitCode = process.waitFor();

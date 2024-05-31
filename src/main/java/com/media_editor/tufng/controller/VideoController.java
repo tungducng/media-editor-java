@@ -1,6 +1,5 @@
 package com.media_editor.tufng.controller;
 
-// UserController.java
 import com.media_editor.tufng.dto.ResizeRequest;
 import com.media_editor.tufng.model.Video;
 import com.media_editor.tufng.service.VideoService;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class VideoController {
@@ -31,7 +29,7 @@ public class VideoController {
     }
 
     @GetMapping("/get-video-asset")
-    public ResponseEntity<?> getVideoAsset(@RequestParam String videoId,@RequestParam String type, @RequestParam(required = false) String dimensions) {
+    public ResponseEntity<?> getVideoAsset(@RequestParam String videoId, @RequestParam String type, @RequestParam(required = false) String dimensions) {
         return videoService.getVideoAsset(videoId, type, dimensions);
     }
 

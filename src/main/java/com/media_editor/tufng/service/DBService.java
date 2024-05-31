@@ -7,6 +7,7 @@ import com.media_editor.tufng.model.Video;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -18,12 +19,10 @@ public class DBService {
     private static final String USERS_PATH = "src/main/resources/data/users.json";
     private static final String SESSIONS_PATH = "src/main/resources/data/sessions.json";
     private static final String VIDEOS_PATH = "src/main/resources/data/videos.json";
-
+    private final ObjectMapper objectMapper;
     private List<User> users;
     private List<Session> sessions;
     private List<Video> videos;
-
-    private final ObjectMapper objectMapper;
 
     public DBService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

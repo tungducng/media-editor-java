@@ -1,6 +1,5 @@
 package com.media_editor.tufng.controller;
 
-// UserController.java
 import com.media_editor.tufng.model.User;
 import com.media_editor.tufng.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +21,8 @@ public class UserController {
     }
 
     @DeleteMapping("/logout")
-        public ResponseEntity<?> logOut(@CookieValue("token") String token) {
-            return userService.logout(token);
+    public ResponseEntity<?> logOut(@CookieValue("token") String token) {
+        return userService.logout(token);
     }
 
     @GetMapping("/user")

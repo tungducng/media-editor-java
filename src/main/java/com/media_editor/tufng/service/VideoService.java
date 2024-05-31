@@ -3,28 +3,28 @@ package com.media_editor.tufng.service;
 import com.media_editor.tufng.model.Job;
 import com.media_editor.tufng.model.Session;
 import com.media_editor.tufng.model.Video;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.apache.commons.io.FilenameUtils;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-
-
-import org.slf4j.Logger;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.stream.Collectors;
 
 @Service
 public class VideoService {
@@ -38,7 +38,7 @@ public class VideoService {
     private final UtilService utilService;
 
     private final Random random = new Random();
-    private ThreadPoolExecutor executor;
+    private final ThreadPoolExecutor executor;
 
     public VideoService(DBService dbService, FFService ffService, JobQueueService jobQueueService, UtilService utilService) {
         this.dbService = dbService;
@@ -94,7 +94,7 @@ public class VideoService {
                 filename = video.getName() + "-audio.aac";
                 break;
             case "resize":
-                filePath = UPLOADED_FOLDER +  "/"  + videoId + "/" + dimensions + "." + video.getExtension();
+                filePath = UPLOADED_FOLDER + "/" + videoId + "/" + dimensions + "." + video.getExtension();
                 mimeType = "video/mp4"; // Not a good practice, as videos are not always MP4
                 filename = video.getName() + "-" + dimensions + "." + video.getExtension();
                 break;
@@ -184,7 +184,7 @@ public class VideoService {
                     .body("{\"status\": \"success\", \"message\": \"The file was uploaded successfully!\"}");
         } catch (IOException e) {
             // Delete the folder
-           utilService.deleteFolder(storagePath);
+            utilService.deleteFolder(storagePath);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"message\": \"Internal server error!\"}");
         } catch (InterruptedException e) {
@@ -248,7 +248,7 @@ public class VideoService {
         executor.submit(() -> {
             try {
                 // Replace this with the actual code to resize the video
-               jobQueueService.enqueue(job);
+                jobQueueService.enqueue(job);
             } catch (Exception e) {
                 logger.error("Failed to enqueue job", e);
             }

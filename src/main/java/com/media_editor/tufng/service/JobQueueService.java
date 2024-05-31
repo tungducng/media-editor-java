@@ -10,13 +10,11 @@ import java.util.Queue;
 @Service
 public class JobQueueService {
     private static final String UPLOADED_FOLDER = "src/main/resources/uploaded_videos";
-
-
-    private Queue<Job> jobs;
-    private Job currentJob;
     private final DBService dbService;
     private final FFService ffService;
     private final UtilService utilService;
+    private final Queue<Job> jobs;
+    private Job currentJob;
 
     public JobQueueService(DBService dbService, FFService ffService, UtilService utilService) {
         this.jobs = new LinkedList<>();

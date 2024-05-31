@@ -7,7 +7,6 @@ public class LoginResponse {
     private User user;
     private String token;
 
-    // Getters and setters
     public User getUser() {
         return user;
     }
