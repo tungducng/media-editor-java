@@ -4,13 +4,12 @@
 
 The Media Editor project is a web application designed for video, image processing tasks. It offers various features including:
 
-<h3> Completed task </h3>
-- **Resize Video**: Resize uploaded videos to specified dimensions.
-- **Upload Video**: Upload videos to the server.
-- **Extract Audio**: Extract audio from uploaded videos.
-- **User Authentication**: Login and logout functionalities.
-- **Download VIDEO and AUDIO**: download from uploaded and extracted audio, video.
-- **And More**: Additional features to enhance video and image editing.
+## Completed task
+1. **Resize Video**: Resize uploaded videos to specified dimensions.
+2. **Upload Video**: Upload videos to the server.
+3. **Extract Audio**: Extract audio from uploaded videos.
+4. **User Authentication**: Login and logout functionalities.
+5. **Download VIDEO and AUDIO**: download from uploaded and extracted audio, video.
 
 ## Features
 
